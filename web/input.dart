@@ -2,11 +2,18 @@ part of ld29;
 
 bool mouseDown = false;
 bool dragging = false;
-num addRootX1, addRootY1, addRootX2, addRootY2;
+Point addRootFork;
+num mouseX, mouseY;
 Root addRoot;
 
 void onClick(MouseEvent event) {
-  
+  num x = getXInWorld(event.layer.x);
+  num y = getYInWorld(event.layer.y);
+  for (int i = 0; i < mouses.length; i++) {
+    if (mouses[i].contains(new Point(x, y))) {
+      mouses.removeAt(i);
+    }
+  }
 }
 
 void onMouseDown(MouseEvent event) {
@@ -29,24 +36,23 @@ void onMouseMove(MouseEvent event) {
       Root r = mainRoot.getRootWhichHasPointAround(x, y);
       if (r != null) {
         dragging = true;
-        addRootX1 = x;
-        addRootY1 = y;
-        addRootX2 = x;
-        addRootY2 = y;
+        addRootFork = r.getPointAround(x, y);
+        mouseX = x;
+        mouseY = y;
         addRoot = r;
       }
     } else {
-      addRootX2 = x;
-      addRootY2 = y;
+      mouseX = x;
+      mouseY = y;
     }
   } else if (dragging) {
     dragging = false;
-    num dx = addRootX2 - addRootX1;
-    num dy = addRootY2 - addRootY1;
+    num dx = mouseX - addRootFork.x;
+    num dy = mouseY - addRootFork.y;
     if (dy < 0) {
-      addRoot.addSubroot(new Root(addRootX1, addRootY1, atan(dx / dy) + PI, sqrt(dx * dx + dy * dy)));
+      addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy) + PI, sqrt(dx * dx + dy * dy)));
     } else {
-      addRoot.addSubroot(new Root(addRootX1, addRootY1, atan(dx / dy), sqrt(dx * dx + dy * dy)));
+      addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy), sqrt(dx * dx + dy * dy)));
     }
   }
 }
