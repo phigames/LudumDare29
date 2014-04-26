@@ -36,7 +36,7 @@ class Mouse {
   }
   
   void draw() {
-    buffer.drawImageToRect(mouse, new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), getXOnCanvas(width + worldX), getYOnCanvas(height + worldY)));
+    buffer.drawImageToRect(imgMouse, new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), getXOnCanvas(width + worldX), getYOnCanvas(height + worldY)));
   }
   
 }

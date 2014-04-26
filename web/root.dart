@@ -11,7 +11,7 @@ class Root {
   num length;
   num target;
   List<Root> subroots;
-  Lake lake;
+  Hittable hittable;
   
   Root(this.parent, this.fork, this.angle, this.target) {
     points = new List<Point<num>>();
@@ -19,7 +19,7 @@ class Root {
     points.add(new Point<num>(fork.x + sin(angle) * POINT_DISTANCE, fork.y + cos(angle) * POINT_DISTANCE));
     length = POINT_DISTANCE;
     subroots = new List<Root>();
-    lake = null;
+    hittable = null;
   }
   
   /**
@@ -61,7 +61,8 @@ class Root {
       return this;
     }
     for (int i = 0; i < subroots.length; i++) {
-      Root s = subroots[i].getSubroot(level - 1);
+      int j = random.nextInt(subroots.length);
+      Root s = subroots[j].getSubroot(level - 1);
       if (s != null) {
         return s;
       }
@@ -78,9 +79,9 @@ class Root {
       points.add(new Point<num>(l.x + sin(angle) * POINT_DISTANCE, l.y + cos(angle) * POINT_DISTANCE));
       length += POINT_DISTANCE;
       waterSupply--;
-      for (int i = 0; i < lakes.length; i++) {
-        if (lakes[i].contains(points[points.length - 1])) {
-          lakes[i].hit(this);
+      for (int i = 0; i < hittables.length; i++) {
+        if (hittables[i].contains(points[points.length - 1])) {
+          hittables[i].hit(this);
           break;
         }
       }
@@ -104,7 +105,7 @@ class Root {
       length -= POINT_DISTANCE;
     }
     target = length;
-    if (points.length == 0) {
+    if (points.length <= 1) {
       parent.subroots.remove(this);
     }
   }
@@ -150,9 +151,9 @@ class Root {
    * disconnect the lakes from the root and all its subroots
    */
   void disconnect() {
-    if (lake != null) {
-      lake.connected = false;
-      lake = null;
+    if (hittable != null) {
+      hittable.connected = false;
+      hittable = null;
     }
     for (int i = 0; i < subroots.length; i++) {
       subroots[i].disconnect();

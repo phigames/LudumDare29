@@ -1,17 +1,18 @@
 part of ld29;
 
+num mouseX, mouseY;
 bool mouseDown = false;
 bool dragging = false;
 Point addRootFork;
-num mouseX, mouseY;
+num dragX, dragY;
 Root addRoot;
 
 void onClick(MouseEvent event) {
   num x = getXInWorld(event.layer.x);
   num y = getYInWorld(event.layer.y);
-  for (int i = 0; i < mouses.length; i++) {
-    if (mouses[i].contains(new Point(x, y))) {
-      mouses.removeAt(i);
+  for (int i = 0; i < mice.length; i++) {
+    if (mice[i].contains(new Point(x, y))) {
+      mice.removeAt(i);
     }
   }
 }
@@ -29,6 +30,8 @@ void onMouseUp(MouseEvent event) {
 }
 
 void onMouseMove(MouseEvent event) {
+  mouseX = event.layer.x;
+  mouseY = event.layer.y;
   if (mouseDown) {
     num x = getXInWorld(event.layer.x);
     num y = getYInWorld(event.layer.y);
@@ -37,18 +40,18 @@ void onMouseMove(MouseEvent event) {
       if (r != null) {
         dragging = true;
         addRootFork = r.getPointAround(x, y);
-        mouseX = x;
-        mouseY = y;
+        dragX = x;
+        dragY = y;
         addRoot = r;
       }
     } else {
-      mouseX = x;
-      mouseY = y;
+      dragX = x;
+      dragY = y;
     }
   } else if (dragging) {
     dragging = false;
-    num dx = mouseX - addRootFork.x;
-    num dy = mouseY - addRootFork.y;
+    num dx = dragX - addRootFork.x;
+    num dy = dragY - addRootFork.y;
     if (dy < 0) {
       addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy) + PI, sqrt(dx * dx + dy * dy)));
     } else {
