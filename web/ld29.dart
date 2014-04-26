@@ -8,6 +8,7 @@ part 'root.dart';
 part 'lake.dart';
 part 'mouse.dart';
 part 'resources.dart';
+part 'end.dart';
 
 CanvasRenderingContext2D canvas;
 CanvasRenderingContext2D buffer;
@@ -31,6 +32,7 @@ num gnawTime;
 num gnawInterval;
 num endTime;
 num end;
+bool gameOver;
 
 void main() {
   CanvasElement c = querySelector('#canvas');
@@ -42,10 +44,10 @@ void main() {
   mouseY = canvasHeight / 2;
   lastTime = -1;
   random = new Random();
-  worldX = 1000 - canvasWidth / 2;
-  worldY = 0;
   worldWidth = 4000;
   worldHeight = 10000;
+  worldX = worldWidth / 2 - canvasWidth / 2;
+  worldY = 0;
   worldScale = 1.0;
   keyLeft = false;
   keyUp = false;
@@ -74,6 +76,7 @@ void main() {
   gnawInterval = 1000;
   endTime = 0;
   end = 300000;
+  gameOver = false;
   loadResources();
   generateWorld();
 }
@@ -92,7 +95,11 @@ void generateWorld() {
 
 void frame(num time) {
   if (lastTime != -1) {
-    update(time - lastTime);
+    if (gameOver) {
+      updateEnding(time - lastTime);
+    } else {
+      update(time - lastTime);
+    }
   }
   lastTime = time;
   buffer.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -139,7 +146,8 @@ void update(num time) {
   }
   endTime += time;
   if (endTime >= end) {
-    gameOver();
+    gameOver = true;
+    startEnding();
   }
 }
 
@@ -147,14 +155,14 @@ void update(num time) {
  * converts world x coordinates to screen x coordinates
  */
 num getXOnCanvas(num x) {
-  return (x - worldX) * worldScale;
+  return ((x - worldX) * worldScale).round();
 }
 
 /**
  * converts world y coordinates to screen y coordinates
  */
 num getYOnCanvas(num y) {
-  return (y - worldY) * worldScale;
+  return ((y - worldY) * worldScale).round();
 }
 
 /**
@@ -171,10 +179,6 @@ num getYInWorld(num y) {
   return y / worldScale + worldY;
 }
 
-void gameOver() {
-  window.alert('Game Over');
-}
-
 void moveWorld(num time) {
   if (keyLeft || mouseX < 50) {
     worldX -= time;
@@ -187,12 +191,6 @@ void moveWorld(num time) {
   }
   if (keyDown || mouseY >= canvasHeight - 50) {
     worldY += time;
-  }
-  if (canvasWidth > worldWidth * worldScale) {
-    worldScale = canvasWidth / worldWidth;
-  }
-  if (canvasHeight > worldHeight * worldScale) {
-    worldScale = canvasHeight / worldHeight;
   }
   if (worldX < 0) {
     worldX = 0;
@@ -207,41 +205,47 @@ void moveWorld(num time) {
 }
 
 void drawWorld() {
-  //buffer.drawImageToRect(background, new Rectangle<num>(0, 0, canvasWidth, canvasHeight), sourceRect: new Rectangle<num>(worldX, worldY, canvasWidth / worldScale, canvasHeight / worldScale));
   int x = (worldX / 500).floor() * 500;
   int y = (worldY / 500).floor() * 500;
   int w = (canvasWidth / worldScale / 500).ceil();
   int h = (canvasHeight / worldScale / 500).ceil();
   for (int i = 0; i <= w; i++) {
     for (int j = 0; j <= h; j++) {
-      if (y == 0 && j == 0) {
-        buffer.drawImageToRect(imgGrass, new Rectangle<num>(getXOnCanvas(x + i * 500), getYOnCanvas(y + j * 500), 500 * worldScale, 500 * worldScale));
+      num yy = y + j * 500;
+      num xx = x + i * 500;
+      if (yy == 0) {
+        buffer.drawImageToRect(imgGrass, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), 500 * worldScale, 500 * worldScale));
+      } else if (yy < 0) {
+        buffer.drawImageToRect(imgSky, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), 500 * worldScale, 500 * worldScale));
       } else {
-        buffer.drawImageToRect(imgGround, new Rectangle<num>(getXOnCanvas(x + i * 500), getYOnCanvas(y + j * 500), 500 * worldScale, 500 * worldScale));
+        buffer.drawImageToRect(imgGround, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), 500 * worldScale, 500 * worldScale));
       }
     }
   }
-  for (int i = 0; i < hittables.length; i++) {
-    hittables[i].draw();
+  if (!gameOver) {
+    for (int i = 0; i < hittables.length; i++) {
+      hittables[i].draw();
+    }
+    mainRoot.draw(0);
+    for (int i = 0; i < mice.length; i++) {
+      mice[i].draw();
+    }
+    if (dragging) {
+      buffer.beginPath();
+      buffer.moveTo(getXOnCanvas(addRootFork.x), getYOnCanvas(addRootFork.y));
+      buffer.lineTo(getXOnCanvas(dragX), getYOnCanvas(dragY));
+      buffer.lineWidth = 2;
+      buffer.lineCap = 'round';
+      buffer.strokeStyle = '#008800';
+      buffer.stroke();
+    }
+    buffer.drawImageToRect(imgClock, new Rectangle<num>(5, canvasHeight - 65, 60, 60));
+    buffer.fillStyle = '#B70000';
+    buffer.fillRect(25, canvasHeight - 70, 20, (endTime - end) / end * (canvasHeight - 95));
+    buffer.drawImageToRect(imgBucket, new Rectangle<num>(canvasWidth - 65, canvasHeight - 65, 60, 60));
+    buffer.fillStyle = '#3760D2';
+    buffer.fillRect(canvasWidth - 45, canvasHeight - 70, 20, -waterSupply / 500 * (canvasHeight - 95));
+  } else {
+    mainRoot.draw(300 * endProgress);
   }
-  mainRoot.draw();
-  for (int i = 0; i < mice.length; i++) {
-    mice[i].draw();
-  }
-  if (dragging) {
-    buffer.beginPath();
-    buffer.moveTo(getXOnCanvas(addRootFork.x), getYOnCanvas(addRootFork.y));
-    buffer.lineTo(getXOnCanvas(dragX), getYOnCanvas(dragY));
-    buffer.lineWidth = 2;
-    buffer.lineCap = 'round';
-    buffer.strokeStyle = '#008800';
-    buffer.stroke();
-  }
-  buffer.drawImageToRect(imgClock, new Rectangle<num>(5, canvasHeight - 65, 60, 60));
-  buffer.fillStyle = '#B70000';
-  buffer.fillRect(25, canvasHeight - 70, 20, (endTime - end) / end * (canvasHeight - 95));
-  buffer.drawImageToRect(imgBucket, new Rectangle<num>(canvasWidth - 65, canvasHeight - 65, 60, 60));
-  buffer.fillStyle = '#3760D2';
-  buffer.fillRect(canvasWidth - 45, canvasHeight - 70, 20, -waterSupply / 500 * (canvasHeight - 95));
-  //buffer.fillText(waterSupply.toString(), 0, 10);
 }

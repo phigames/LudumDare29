@@ -110,34 +110,6 @@ class Root {
     }
   }
   
-  /*void burn() {
-    if (onFire) {
-      print(points.length);
-      Point p = points[points.length - 1];
-      for (int i = 0; i < subroots.length; i++) {
-        Root s = subroots[i].getRootWhichHasPointAround(p.x, p.y);
-        if (s != null) {
-          subroots[i].disconnect();
-          subroots.removeAt(i);
-          i--;
-          print('subroot removed');
-        }
-      }
-      points.removeLast();
-      if (points.length == 0) {
-        onFire = false;
-      }
-    }
-    for (int i = 0; i < subroots.length; i++) {
-      subroots[i].burn();
-      if (subroots[i].points.length == 0) {
-        subroots.removeAt(i);
-        i--;
-        print('subroot removed');
-      }
-    }
-  }*/
-  
   /**
    * adds a subroot if there is enough water in supply
    */
@@ -163,21 +135,21 @@ class Root {
   /**
    * draws the root and all its subroots to the buffer
    */
-  void draw() {
+  void draw(num thickness) {
     if (points.length > 1) {
       buffer.beginPath();
       buffer.moveTo(getXOnCanvas(points[0].x), getYOnCanvas(points[0].y));
       for (int i = 1; i < points.length; i++) {
         buffer.lineTo(getXOnCanvas(points[i].x), getYOnCanvas(points[i].y));
       }
-      buffer.lineWidth = 20 * worldScale;
+      buffer.lineWidth = (thickness + 20) * worldScale;
       buffer.lineCap = 'round';
       buffer.lineJoin = 'round';
       buffer.strokeStyle = '#883300';
       buffer.stroke();
     }
     for (int i = 0; i < subroots.length; i++) {
-      subroots[i].draw();
+      subroots[i].draw(thickness * 0.6);
     }
   }
   

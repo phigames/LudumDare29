@@ -2,6 +2,7 @@ part of ld29;
 
 ImageElement imgGround;
 ImageElement imgGrass;
+ImageElement imgSky;
 ImageElement imgUnknown;
 ImageElement imgWater;
 ImageElement imgEmpty;
@@ -15,6 +16,8 @@ void loadResources() {
   imgGround.src = 'res/ground.png';
   imgGrass = new ImageElement();
   imgGrass.src = 'res/grass.png';
+  imgSky = new ImageElement();
+  imgSky.src = 'res/sky.png';
   imgUnknown = new ImageElement();
   imgUnknown.src = 'res/unknown.png';
   imgWater = new ImageElement();

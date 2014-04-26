@@ -61,11 +61,21 @@ void onMouseMove(MouseEvent event) {
 }
 
 void onMouseWheel(WheelEvent event) {
-  num x = worldX + event.layer.x / worldScale;
-  num y = worldY + event.layer.y / worldScale;
-  worldScale -= event.deltaY.sign / 10;
-  worldX = x - event.layer.x / worldScale;
-  worldY = y - event.layer.y / worldScale;
+  if (!gameOver) {
+    num x = worldX + event.layer.x / worldScale;
+    num y = worldY + event.layer.y / worldScale;
+    worldScale -= event.deltaY.sign / 10;
+    if (canvasWidth > worldWidth * worldScale) {
+      worldScale = canvasWidth / worldWidth;
+    } else {
+      worldX = x - event.layer.x / worldScale;
+    }
+    if (canvasHeight > worldHeight * worldScale) {
+      worldScale = canvasHeight / worldHeight;
+    } else {
+      worldY = y - event.layer.y / worldScale;
+    }
+  }
 }
 
 void onKeyDown(KeyboardEvent event) {
