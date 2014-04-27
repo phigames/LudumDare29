@@ -36,13 +36,14 @@ class Lake extends Hittable {
     if (random.nextInt(10) == 0) {
       fullness = 0;
     } else {
-      fullness = random.nextInt(100) + 100;
+      fullness = random.nextInt(100) + 50;
     }
   }
   
   void hit(Root root) {
     if (!known) {
       known = true;
+      score += 5;
     }
     if (!connected) {
       root.target = root.length;
@@ -60,10 +61,14 @@ class Lake extends Hittable {
   
   void draw() {
     if (known) {
-      if (fullness > 0) {
-        buffer.drawImageToRect(imgWater, new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+      if (fullness > 100) {
+        buffer.drawImageToRect(imgWater[0], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+      } else if (fullness > 50) {
+        buffer.drawImageToRect(imgWater[1], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+      } else if (fullness > 0) {
+        buffer.drawImageToRect(imgWater[2], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
       } else {
-        buffer.drawImageToRect(imgEmpty, new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+        buffer.drawImageToRect(imgWater[3], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
       }
     } else {
       buffer.drawImageToRect(imgUnknown, new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
@@ -72,32 +77,124 @@ class Lake extends Hittable {
   
 }
 
-class Fertilizer extends Hittable {
+class FertilizerSmall extends Hittable {
+
+  num fullness;
   
-  Fertilizer(num x, num y) {
+  FertilizerSmall(num x, num y) {
     this.x = x - 15;
     this.y = y - 15;
     width = 30;
     height = 30;
     connected = false;
+    fullness = 10;
   }
 
   void hit(Root root) {
-    root.target = root.length;
-    if (!connected) {
+    if (!connected && fullness > 0) {
+      root.target = root.length;
       root.hittable = this;
       connected = true;
     }
   }
   
   void drain() {
-    if (connected) {
-      // TODO score
+    if (connected && fullness > 0) {
+      fullness--;
+      score += 0.1;
     }
   }
   
   void draw() {
-    buffer.drawImageToRect(imgFertilizer, new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+    if (fullness > 6) {
+      buffer.drawImageToRect(imgFertilizerSmall[0], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+    } else if (fullness > 3) {
+      buffer.drawImageToRect(imgFertilizerSmall[1], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+    } else if (fullness > 0) {
+      buffer.drawImageToRect(imgFertilizerSmall[2], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+    }
   }
+  
+}
+
+class FertilizerLarge extends Hittable {
+
+  num fullness;
+  
+  FertilizerLarge(num x, num y) {
+    this.x = x - 30;
+    this.y = y - 30;
+    width = 60;
+    height = 60;
+    connected = false;
+    fullness = 30;
+  }
+
+  void hit(Root root) {
+    if (!connected && fullness > 0) {
+      root.target = root.length;
+      root.hittable = this;
+      connected = true;
+    }
+  }
+  
+  void drain() {
+    if (connected && fullness > 0) {
+      fullness--;
+      score += 0.1;
+    }
+  }
+  
+  void draw() {
+    if (fullness > 20) {
+      buffer.drawImageToRect(imgFertilizerLarge[0], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+    } else if (fullness > 10) {
+      buffer.drawImageToRect(imgFertilizerLarge[1], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+    } else if (fullness > 0) {
+      buffer.drawImageToRect(imgFertilizerLarge[2], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+    }
+  }
+  
+}
+
+class Treasure extends Hittable {
+  
+  num fullness;
+  
+  Treasure(num x, num y) {
+      this.x = x - 96;
+      this.y = y - 167;
+      width = 192;
+      height = 167;
+      connected = false;
+      fullness = 100;
+    }
+
+    void hit(Root root) {
+      root.target = root.length;
+      if (!connected) {
+        root.hittable = this;
+        connected = true;
+      }
+    }
+    
+    void drain() {
+      if (connected) {
+        fullness--;
+        score += 1;
+      }
+    }
+    
+    void draw() {
+      if (fullness > 66) {
+        buffer.drawImageToRect(imgTreasure[0], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+      } else if (fullness > 33) {
+        buffer.drawImageToRect(imgTreasure[1], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+      } else if (fullness > 0) {
+        buffer.drawImageToRect(imgTreasure[2], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+      } else {
+        buffer.drawImageToRect(imgTreasure[3], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+      }
+    }
   
 }

@@ -50,12 +50,14 @@ void onMouseMove(MouseEvent event) {
     }
   } else if (dragging) {
     dragging = false;
-    num dx = dragX - addRootFork.x;
-    num dy = dragY - addRootFork.y;
-    if (dy < 0) {
-      addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy) + PI, sqrt(dx * dx + dy * dy)));
-    } else {
-      addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy), sqrt(dx * dx + dy * dy)));
+    if (addRoot.points.contains(addRootFork) && addRoot.parent != null) {
+      num dx = dragX - addRootFork.x;
+      num dy = dragY - addRootFork.y;
+      if (dy < 0) {
+        addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy) + PI, sqrt(dx * dx + dy * dy)));
+      } else {
+        addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy), sqrt(dx * dx + dy * dy)));
+      }
     }
   }
 }

@@ -14,6 +14,9 @@ class Root {
   Hittable hittable;
   
   Root(this.parent, this.fork, this.angle, this.target) {
+    if (parent == null) {
+      parent = this;
+    }
     points = new List<Point<num>>();
     points.add(new Point<num>(fork.x, fork.y));
     points.add(new Point<num>(fork.x + sin(angle) * POINT_DISTANCE, fork.y + cos(angle) * POINT_DISTANCE));
@@ -97,6 +100,7 @@ class Root {
       for (int j = 0; j < subroots.length; j++) {
         if (points[i] == subroots[j].fork) {
           subroots[j].disconnect();
+          subroots[j].parent = null;
           subroots.removeAt(j);
           j--;
         }
@@ -107,6 +111,7 @@ class Root {
     target = length;
     if (points.length <= 1) {
       parent.subroots.remove(this);
+      parent = null;
     }
   }
   
@@ -145,7 +150,7 @@ class Root {
       buffer.lineWidth = (thickness + 20) * worldScale;
       buffer.lineCap = 'round';
       buffer.lineJoin = 'round';
-      buffer.strokeStyle = '#883300';
+      buffer.strokeStyle = '#6B2C03';
       buffer.stroke();
     }
     for (int i = 0; i < subroots.length; i++) {

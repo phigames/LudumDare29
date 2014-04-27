@@ -23,8 +23,8 @@ List<Hittable> hittables;
 Root mainRoot;
 num growTime;
 num growInterval;
-num waterTime;
-num waterInterval;
+num drainTime;
+num drainInterval;
 num waterSupply;
 num mouseTime;
 num mouseInterval;
@@ -32,6 +32,7 @@ num gnawTime;
 num gnawInterval;
 num endTime;
 num end;
+num score;
 bool gameOver;
 
 void main() {
@@ -67,15 +68,16 @@ void main() {
   mainRoot = new Root(null, new Point(worldWidth / 2, 200), 0, 200);
   growTime = 0;
   growInterval = 500;
-  waterTime = 0;
-  waterInterval = 1000;
-  waterSupply = 100;
+  drainTime = 0;
+  drainInterval = 1000;
+  waterSupply = 200;
   mouseTime = 0;
   mouseInterval = 20000;
   gnawTime = 0;
   gnawInterval = 1000;
   endTime = 0;
   end = 300000;
+  score = 0;
   gameOver = false;
   loadResources();
   generateWorld();
@@ -85,12 +87,16 @@ void main() {
  * adds lakes
  */
 void generateWorld() {
-  for (int i = 0; i < 30; i++) {
-    hittables.add(new Lake(random.nextInt(3500) + 250, random.nextInt(5000) + 500));
+  for (int i = 0; i < 50; i++) {
+    hittables.add(new Lake(random.nextInt(3500) + 250, random.nextInt(8000) + 500));
+  }
+  for (int i = 0; i < 20; i++) {
+    hittables.add(new FertilizerSmall(random.nextInt(3500) + 250, random.nextInt(5000) + 3000));
   }
   for (int i = 0; i < 10; i++) {
-    hittables.add(new Fertilizer(random.nextInt(3500) + 250, random.nextInt(5000) + 3000));
+    hittables.add(new FertilizerLarge(random.nextInt(3500) + 250, random.nextInt(3000) + 6000));
   }
+  hittables.add(new Treasure(worldWidth / 2, worldHeight - 100));
 }
 
 void frame(num time) {
@@ -117,16 +123,16 @@ void update(num time) {
     growTime -= growInterval;
     growInterval = 8000 / waterSupply;
   }
-  waterTime += time;
-  if (waterTime >= waterInterval) {
+  drainTime += time;
+  if (drainTime >= drainInterval) {
     for (int i = 0; i < hittables.length; i++) {
       hittables[i].drain();
     }
-    waterTime -= waterInterval;
+    drainTime -= drainInterval;
   }
   mouseTime += time;
   if (mouseTime >= mouseInterval) {
-    Root m = mainRoot.getSubroot(random.nextInt(3) + 2);
+    Root m = mainRoot.getSubroot(random.nextInt(7) + 2);
     if (m != null) {
       mice.add(new Mouse(m));
     }
@@ -155,14 +161,14 @@ void update(num time) {
  * converts world x coordinates to screen x coordinates
  */
 num getXOnCanvas(num x) {
-  return ((x - worldX) * worldScale).round();
+  return ((x - worldX) * worldScale).floor();
 }
 
 /**
  * converts world y coordinates to screen y coordinates
  */
 num getYOnCanvas(num y) {
-  return ((y - worldY) * worldScale).round();
+  return ((y - worldY) * worldScale).floor();
 }
 
 /**
@@ -181,26 +187,26 @@ num getYInWorld(num y) {
 
 void moveWorld(num time) {
   if (keyLeft || mouseX < 50) {
-    worldX -= time;
+    worldX -= time * 1.5;
   }
   if (keyUp || mouseY < 50) {
-    worldY -= time;
+    worldY -= time * 1.5;
   }
   if (keyRight || mouseX >= canvasWidth - 50) {
-    worldX += time;
+    worldX += time * 1.5;
   }
   if (keyDown || mouseY >= canvasHeight - 50) {
-    worldY += time;
+    worldY += time * 1.5;
   }
   if (worldX < 0) {
     worldX = 0;
   } else if (worldX + canvasWidth / worldScale > worldWidth) {
-    worldX = worldWidth - canvasWidth / worldScale;
+    worldX = worldWidth - canvasWidth / worldScale - 0.1;
   }
   if (worldY < 0) {
     worldY = 0;
   } else if (worldY + canvasHeight / worldScale > worldHeight) {
-    worldY = worldHeight - canvasHeight / worldScale;
+    worldY = worldHeight - canvasHeight / worldScale - 0.1;
   }
 }
 
@@ -214,11 +220,11 @@ void drawWorld() {
       num yy = y + j * 500;
       num xx = x + i * 500;
       if (yy == 0) {
-        buffer.drawImageToRect(imgGrass, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), 500 * worldScale, 500 * worldScale));
+        buffer.drawImageToRect(imgGrass, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), (500 * worldScale).ceil(), (500 * worldScale).ceil()));
       } else if (yy < 0) {
-        buffer.drawImageToRect(imgSky, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), 500 * worldScale, 500 * worldScale));
+        buffer.drawImageToRect(imgSky, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), (500 * worldScale).ceil(), (500 * worldScale).ceil()));
       } else {
-        buffer.drawImageToRect(imgGround, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), 500 * worldScale, 500 * worldScale));
+        buffer.drawImageToRect(imgGround, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), (500 * worldScale).ceil(), (500 * worldScale).ceil()));
       }
     }
   }
@@ -246,6 +252,6 @@ void drawWorld() {
     buffer.fillStyle = '#3760D2';
     buffer.fillRect(canvasWidth - 45, canvasHeight - 70, 20, -waterSupply / 500 * (canvasHeight - 95));
   } else {
-    mainRoot.draw(300 * endProgress);
+    drawEnding();
   }
 }
