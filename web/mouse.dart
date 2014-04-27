@@ -11,12 +11,16 @@ class Mouse {
   
   Mouse(this.root) {
     point = random.nextInt(root.points.length);
-    x = root.points[point].x - 60;
-    y = root.points[point].y - 15;
-    width = 70;
-    height = 30;
+    x = root.points[point].x - 95;
+    y = root.points[point].y - 18;
+    width = 98;
+    height = 37;
     nom = 0;
     done = false;
+    if (tutorial) {
+      updateTutorial('mouse');
+    }
+    sndEat.play();
   }
   
   bool contains(Point<num> point) {
@@ -28,7 +32,6 @@ class Mouse {
   
   void gnaw() {
     nom++;
-    // TODO maybe different nom limits depending on height / root size / level / time?
     if (nom >= 5) { // <-- number of seconds
       root.removeFromPoint(point);
       done = true;

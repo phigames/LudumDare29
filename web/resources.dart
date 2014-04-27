@@ -13,6 +13,12 @@ ImageElement imgClock;
 ImageElement imgBucket;
 ImageElement imgTrunk;
 ImageElement imgTop;
+AudioElement sndEat;
+AudioElement sndDie;
+AudioElement sndRoot;
+AudioElement sndWater;
+AudioElement sndFertilizer;
+AudioElement sndTreasure;
 
 void loadResources() {
   imgGround = new ImageElement();
@@ -24,7 +30,7 @@ void loadResources() {
   imgUnknown = new ImageElement();
   imgUnknown.src = 'res/unknown.png';
   imgWater = new List<ImageElement>();
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 4; i++) {
     imgWater.add(new ImageElement());
     imgWater[i].src = 'res/water_' + i.toString() + '.png';
   }
@@ -53,4 +59,16 @@ void loadResources() {
   imgTrunk.src = 'res/trunk.png';
   imgTop = new ImageElement();
   imgTop.src = 'res/top.png';
+  sndEat = new AudioElement();
+  sndEat.src = 'res/eat.wav';
+  sndDie = new AudioElement();
+  sndDie.src = 'res/die.wav';
+  sndRoot = new AudioElement();
+  sndRoot.src = 'res/root.wav';
+  sndWater = new AudioElement();
+  sndWater.src = 'res/water.wav';
+  sndFertilizer = new AudioElement();
+  sndFertilizer.src = 'res/fertilizer.wav';
+  sndTreasure = new AudioElement();
+  sndTreasure.src = 'res/treasure.wav';
 }

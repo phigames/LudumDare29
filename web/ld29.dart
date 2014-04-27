@@ -9,6 +9,7 @@ part 'lake.dart';
 part 'mouse.dart';
 part 'resources.dart';
 part 'end.dart';
+part 'tutorial.dart';
 
 CanvasRenderingContext2D canvas;
 CanvasRenderingContext2D buffer;
@@ -34,6 +35,7 @@ num endTime;
 num end;
 num score;
 bool gameOver;
+bool paused;
 
 void main() {
   CanvasElement c = querySelector('#canvas');
@@ -79,8 +81,13 @@ void main() {
   end = 300000;
   score = 0;
   gameOver = false;
+  paused = false;
+  tutorial = true;
   loadResources();
   generateWorld();
+  if (tutorial) {
+    updateTutorial('start');
+  }
 }
 
 /**
@@ -88,7 +95,7 @@ void main() {
  */
 void generateWorld() {
   for (int i = 0; i < 50; i++) {
-    hittables.add(new Lake(random.nextInt(3500) + 250, random.nextInt(8000) + 500));
+    hittables.add(new Lake(random.nextInt(3500) + 500, random.nextInt(8000) + 500));
   }
   for (int i = 0; i < 20; i++) {
     hittables.add(new FertilizerSmall(random.nextInt(3500) + 250, random.nextInt(5000) + 3000));
@@ -117,43 +124,45 @@ void frame(num time) {
 
 void update(num time) {
   moveWorld(time);
-  growTime += time;
-  if (growTime >= growInterval) {
-    mainRoot.grow();
-    growTime -= growInterval;
-    growInterval = 8000 / waterSupply;
-  }
-  drainTime += time;
-  if (drainTime >= drainInterval) {
-    for (int i = 0; i < hittables.length; i++) {
-      hittables[i].drain();
+  if (!paused) {
+    growTime += time;
+    if (growTime >= growInterval) {
+      mainRoot.grow();
+      growTime -= growInterval;
+      growInterval = 8000 / waterSupply;
     }
-    drainTime -= drainInterval;
-  }
-  mouseTime += time;
-  if (mouseTime >= mouseInterval) {
-    Root m = mainRoot.getSubroot(random.nextInt(7) + 2);
-    if (m != null) {
-      mice.add(new Mouse(m));
-    }
-    mouseTime -= mouseInterval;
-    mouseInterval = random.nextInt(10000) + 10000;
-  }
-  gnawTime += time;
-  if (gnawTime >= gnawInterval) {
-    for (int i = 0; i < mice.length; i++) {
-      mice[i].gnaw();
-      if (mice[i].done) {
-        mice.removeAt(i);
-        i--;
+    drainTime += time;
+    if (drainTime >= drainInterval) {
+      for (int i = 0; i < hittables.length; i++) {
+        hittables[i].drain();
       }
+      drainTime -= drainInterval;
     }
-    gnawTime -= gnawInterval;
-  }
-  endTime += time;
-  if (endTime >= end) {
-    gameOver = true;
-    startEnding();
+    mouseTime += time;
+    if (mouseTime >= mouseInterval) {
+      Root m = mainRoot.getSubroot(random.nextInt(7) + 2);
+      if (m != null) {
+        mice.add(new Mouse(m));
+      }
+      mouseTime -= mouseInterval;
+      mouseInterval = random.nextInt(30000) + 20000;
+    }
+    gnawTime += time;
+    if (gnawTime >= gnawInterval) {
+      for (int i = 0; i < mice.length; i++) {
+        mice[i].gnaw();
+        if (mice[i].done) {
+          mice.removeAt(i);
+          i--;
+        }
+      }
+      gnawTime -= gnawInterval;
+    }
+    endTime += time;
+    if (endTime >= end) {
+      gameOver = true;
+      startEnding();
+    }
   }
 }
 
@@ -186,45 +195,59 @@ num getYInWorld(num y) {
 }
 
 void moveWorld(num time) {
-  if (keyLeft || mouseX < 50) {
-    worldX -= time * 1.5;
-  }
-  if (keyUp || mouseY < 50) {
-    worldY -= time * 1.5;
-  }
-  if (keyRight || mouseX >= canvasWidth - 50) {
-    worldX += time * 1.5;
-  }
-  if (keyDown || mouseY >= canvasHeight - 50) {
-    worldY += time * 1.5;
+  if (!paused) {
+    if (keyLeft || mouseX < 50) {
+      worldX -= time * 1.5;
+      if (tutorial) {
+        updateTutorial('map');
+      }
+    }
+    if (keyUp || mouseY < 50) {
+      worldY -= time * 1.5;
+      if (tutorial) {
+        updateTutorial('map');
+      }
+    }
+    if (keyRight || mouseX >= canvasWidth - 50) {
+      worldX += time * 1.5;
+      if (tutorial) {
+        updateTutorial('map');
+      }
+    }
+    if (keyDown || mouseY >= canvasHeight - 50) {
+      worldY += time * 1.5;
+      if (tutorial) {
+        updateTutorial('map');
+      }
+    }
   }
   if (worldX < 0) {
     worldX = 0;
   } else if (worldX + canvasWidth / worldScale > worldWidth) {
-    worldX = worldWidth - canvasWidth / worldScale - 0.1;
+    worldX = worldWidth - canvasWidth / worldScale;
   }
   if (worldY < 0) {
     worldY = 0;
   } else if (worldY + canvasHeight / worldScale > worldHeight) {
-    worldY = worldHeight - canvasHeight / worldScale - 0.1;
+    worldY = worldHeight - canvasHeight / worldScale;
   }
 }
 
 void drawWorld() {
   int x = (worldX / 500).floor() * 500;
   int y = (worldY / 500).floor() * 500;
-  int w = (canvasWidth / worldScale / 500).ceil();
-  int h = (canvasHeight / worldScale / 500).ceil();
+  num w = (canvasWidth / worldScale / 500).ceil();
+  num h = (canvasHeight / worldScale / 500).ceil();
   for (int i = 0; i <= w; i++) {
     for (int j = 0; j <= h; j++) {
       num yy = y + j * 500;
       num xx = x + i * 500;
       if (yy == 0) {
-        buffer.drawImageToRect(imgGrass, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), (500 * worldScale).ceil(), (500 * worldScale).ceil()));
+        buffer.drawImageToRect(imgGrass, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), 500 * worldScale + 1, 500 * worldScale + 1));
       } else if (yy < 0) {
-        buffer.drawImageToRect(imgSky, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), (500 * worldScale).ceil(), (500 * worldScale).ceil()));
+        buffer.drawImageToRect(imgSky, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), 500 * worldScale + 1, 500 * worldScale + 1));
       } else {
-        buffer.drawImageToRect(imgGround, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), (500 * worldScale).ceil(), (500 * worldScale).ceil()));
+        buffer.drawImageToRect(imgGround, new Rectangle<num>(getXOnCanvas(xx), getYOnCanvas(yy), 500 * worldScale + 1, 500 * worldScale + 1));
       }
     }
   }

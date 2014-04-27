@@ -13,6 +13,7 @@ void onClick(MouseEvent event) {
   for (int i = 0; i < mice.length; i++) {
     if (mice[i].contains(new Point(x, y))) {
       mice.removeAt(i);
+      sndDie.play();
     }
   }
 }
@@ -57,6 +58,10 @@ void onMouseMove(MouseEvent event) {
         addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy) + PI, sqrt(dx * dx + dy * dy)));
       } else {
         addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy), sqrt(dx * dx + dy * dy)));
+      }
+      sndRoot.play();
+      if (tutorial) {
+        updateTutorial('root');
       }
     }
   }

@@ -7,3 +7,27 @@ html, body {
 #canvas {
   display: block;
 }
+
+#tutorial {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 300px;
+  height: auto;
+  text-align: center;
+  border: 5px solid #4466DD;
+  border-radius: 5px;
+  background-color: #6688FF;
+}
+
+#tutorial_text {
+  margin: 5px;
+  font-family: sans-serif;
+  font-size: 20px;
+  color: #000000;
+}
+
+#ok {
+  margin-bottom: 5px;
+}
