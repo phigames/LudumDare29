@@ -38,6 +38,14 @@ bool gameOver;
 bool paused;
 
 void main() {
+  loadResources();
+  ButtonElement t = querySelector('#tut');
+  ButtonElement n = querySelector('#no_tut');
+  t.onClick.listen((MouseEvent) => start(true));
+  n.onClick.listen((MouseEvent) => start(false));
+}
+
+void start(bool tut) {
   CanvasElement c = querySelector('#canvas');
   canvas = c.context2D;
   CanvasElement b = new CanvasElement();
@@ -74,7 +82,7 @@ void main() {
   drainInterval = 1000;
   waterSupply = 200;
   mouseTime = 0;
-  mouseInterval = 20000;
+  mouseInterval = 30000;
   gnawTime = 0;
   gnawInterval = 1000;
   endTime = 0;
@@ -82,20 +90,18 @@ void main() {
   score = 0;
   gameOver = false;
   paused = false;
-  tutorial = true;
-  loadResources();
+  tutorial = tut;
   generateWorld();
+  querySelector('#title').style.display = 'none';
+  c.style.display = 'block';
   if (tutorial) {
     updateTutorial('start');
   }
 }
 
-/**
- * adds lakes
- */
 void generateWorld() {
   for (int i = 0; i < 50; i++) {
-    hittables.add(new Lake(random.nextInt(3500) + 500, random.nextInt(8000) + 500));
+    hittables.add(new Lake(random.nextInt(3500) + 1000, random.nextInt(8000) + 500));
   }
   for (int i = 0; i < 20; i++) {
     hittables.add(new FertilizerSmall(random.nextInt(3500) + 250, random.nextInt(5000) + 3000));
@@ -256,6 +262,7 @@ void drawWorld() {
       hittables[i].draw();
     }
     mainRoot.draw(0);
+    buffer.drawImageToRect(imgSprout, new Rectangle<num>(getXOnCanvas(worldWidth / 2 - 12), getYOnCanvas(100), 34 * worldScale, 100 * worldScale));
     for (int i = 0; i < mice.length; i++) {
       mice[i].draw();
     }

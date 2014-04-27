@@ -4,8 +4,30 @@ html, body {
   margin: 0;
 }
 
+#title {
+  padding: 100px;
+  font-family: sans-serif;
+  font-size: 20px;
+  color: #004488;
+  text-align: center;
+  background-color: #88BBFF;
+}
+#title h1 {
+  font-size: 100px;
+  color: #0088FF;
+}
+#title h2 {
+  font-size: 40px;
+  color: #0066BB;
+}
+#title h3 {
+  font-size: 12px;
+  font-style: bold;
+  color: #002244;
+}
+
 #canvas {
-  display: block;
+  display: none;
 }
 
 #tutorial {
@@ -18,7 +40,7 @@ html, body {
   text-align: center;
   border: 5px solid #4466DD;
   border-radius: 5px;
-  background-color: #6688FF;
+  background-color: #88BBFF;
 }
 
 #tutorial_text {

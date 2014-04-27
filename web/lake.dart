@@ -45,7 +45,7 @@ class Lake extends Hittable {
       known = true;
       score += 5;
     }
-    if (!connected) {
+    if (!connected && fullness > 0) {
       root.target = root.length;
       root.hittable = this;
       connected = true;
@@ -75,7 +75,7 @@ class Lake extends Hittable {
         buffer.drawImageToRect(imgWater[3], new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
       }
     } else {
-      buffer.drawImageToRect(imgUnknown, new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
+      buffer.drawImageToRect(imgWaterUnknown, new Rectangle<num>(getXOnCanvas(x), getYOnCanvas(y), width * worldScale, height * worldScale));
     }
   }
 

@@ -8,12 +8,15 @@ num dragX, dragY;
 Root addRoot;
 
 void onClick(MouseEvent event) {
-  num x = getXInWorld(event.layer.x);
-  num y = getYInWorld(event.layer.y);
-  for (int i = 0; i < mice.length; i++) {
-    if (mice[i].contains(new Point(x, y))) {
-      mice.removeAt(i);
-      sndDie.play();
+  if (!paused) {
+    num x = getXInWorld(event.layer.x);
+    num y = getYInWorld(event.layer.y);
+    for (int i = 0; i < mice.length; i++) {
+      if (mice[i].contains(new Point(x, y))) {
+        mice.removeAt(i);
+        score += 5;
+        sndDie.play();
+      }
     }
   }
 }
@@ -31,44 +34,46 @@ void onMouseUp(MouseEvent event) {
 }
 
 void onMouseMove(MouseEvent event) {
-  mouseX = event.layer.x;
-  mouseY = event.layer.y;
-  if (mouseDown) {
-    num x = getXInWorld(event.layer.x);
-    num y = getYInWorld(event.layer.y);
-    if (!dragging) {
-      Root r = mainRoot.getRootWhichHasPointAround(x, y);
-      if (r != null) {
-        dragging = true;
-        addRootFork = r.getPointAround(x, y);
+  if (!paused) {
+    mouseX = event.layer.x;
+    mouseY = event.layer.y;
+    if (mouseDown) {
+      num x = getXInWorld(event.layer.x);
+      num y = getYInWorld(event.layer.y);
+      if (!dragging) {
+        Root r = mainRoot.getRootWhichHasPointAround(x, y);
+        if (r != null) {
+          dragging = true;
+          addRootFork = r.getPointAround(x, y);
+          dragX = x;
+          dragY = y;
+          addRoot = r;
+        }
+      } else {
         dragX = x;
         dragY = y;
-        addRoot = r;
       }
-    } else {
-      dragX = x;
-      dragY = y;
-    }
-  } else if (dragging) {
-    dragging = false;
-    if (addRoot.points.contains(addRootFork) && addRoot.parent != null) {
-      num dx = dragX - addRootFork.x;
-      num dy = dragY - addRootFork.y;
-      if (dy < 0) {
-        addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy) + PI, sqrt(dx * dx + dy * dy)));
-      } else {
-        addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy), sqrt(dx * dx + dy * dy)));
-      }
-      sndRoot.play();
-      if (tutorial) {
-        updateTutorial('root');
+    } else if (dragging) {
+      dragging = false;
+      if (addRoot.points.contains(addRootFork) && addRoot.parent != null) {
+        num dx = dragX - addRootFork.x;
+        num dy = dragY - addRootFork.y;
+        if (dy < 0) {
+          addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy) + PI, sqrt(dx * dx + dy * dy)));
+        } else {
+          addRoot.addSubroot(new Root(addRoot, addRootFork, atan(dx / dy), sqrt(dx * dx + dy * dy)));
+        }
+        sndRoot.play();
+        if (tutorial) {
+          updateTutorial('root');
+        }
       }
     }
   }
 }
 
 void onMouseWheel(WheelEvent event) {
-  if (!gameOver) {
+  if (!gameOver && !paused) {
     num x = worldX + event.layer.x / worldScale;
     num y = worldY + event.layer.y / worldScale;
     worldScale -= event.deltaY.sign / 10;
@@ -81,6 +86,9 @@ void onMouseWheel(WheelEvent event) {
       worldScale = canvasHeight / worldHeight;
     } else {
       worldY = y - event.layer.y / worldScale;
+    }
+    if (tutorial) {
+      updateTutorial('map');
     }
   }
 }

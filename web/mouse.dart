@@ -32,7 +32,7 @@ class Mouse {
   
   void gnaw() {
     nom++;
-    if (nom >= 5) { // <-- number of seconds
+    if (nom >= 6) { // <-- number of seconds
       root.removeFromPoint(point);
       done = true;
     }

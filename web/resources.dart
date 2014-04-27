@@ -3,7 +3,8 @@ part of ld29;
 ImageElement imgGround;
 ImageElement imgGrass;
 ImageElement imgSky;
-ImageElement imgUnknown;
+ImageElement imgSprout;
+ImageElement imgWaterUnknown;
 List<ImageElement> imgWater;
 List<ImageElement> imgFertilizerSmall;
 List<ImageElement> imgFertilizerLarge;
@@ -27,8 +28,10 @@ void loadResources() {
   imgGrass.src = 'res/grass.png';
   imgSky = new ImageElement();
   imgSky.src = 'res/sky.png';
-  imgUnknown = new ImageElement();
-  imgUnknown.src = 'res/unknown.png';
+  imgSprout = new ImageElement();
+  imgSprout.src = 'res/sprout.png';
+  imgWaterUnknown = new ImageElement();
+  imgWaterUnknown.src = 'res/water_unknown.png';
   imgWater = new List<ImageElement>();
   for (int i = 0; i < 4; i++) {
     imgWater.add(new ImageElement());
